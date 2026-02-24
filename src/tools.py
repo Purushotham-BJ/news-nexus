@@ -3,6 +3,7 @@ from langchain.tools import tool
 from langchain_ollama import ChatOllama
 from retrieval import retrieve_documents
 
+
 @tool
 def lookup_policy_docs(query: str) -> str:
     if isinstance(query, str) and "{" in query:
@@ -39,6 +40,7 @@ def web_search_stub(query: str) -> str:
         return "No results found"
 
     formatted_results = []
+
     for res in result:
         formatted_results.append(
             f"Title: {res.get('title')}\n"
@@ -64,6 +66,7 @@ def rss_feed_search(query: str) -> str:
 
     for url in FEEDS:
         feed = feedparser.parse(url)
+
         for entry in feed.entries[:10]:
             text_to_search = (entry.title + " " + entry.get("summary", "")).lower()
 
