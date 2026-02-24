@@ -11,4 +11,11 @@ class Agentstate(TypedDict):
 
 def researcher_node(state: Agentstate) :
     print('\n---(Agent:Researcher) is gathering data ---')
-    last_message = state('message')
+    return {"messages": state['messages']}
+
+workflow = StateGraph(Agentstate)
+workflow.add_node("researcher", researcher_node)
+workflow.set_entry_point("researcher")
+workflow.add_edge("researcher", "END")
+
+workflow.compile()
