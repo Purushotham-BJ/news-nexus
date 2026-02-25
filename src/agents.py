@@ -52,4 +52,4 @@ workflow.add_node("researcher", researcher_node)
 workflow.set_entry_point("researcher")
 workflow.add_edge("researcher", END)
 
-app = workflow.compile()
+workflow.compile()
