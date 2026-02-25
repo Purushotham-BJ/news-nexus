@@ -47,9 +47,31 @@ def analyst_node(state: AgentState):
     response = llm.ivoke(prompt)
     return {"messages": [response], "chart_data": []}
 
-workflow = StateGraph(AgentState)
-workflow.add_node("researcher", researcher_node)
-workflow.set_entry_point("researcher")
-workflow.add_edge("researcher", END)
+def writer_node(state: AgentState):
+    analyst_insights = state["messages"][-1].content
+    prompt = f"""You are a newsletter editor.
+    Compile the trends into a polite,professional HTML format. 
+    CRITICAL:Preserve all links provided in the analysis(e.g.,[Title](URL)).
+    Format them as clickable <a> tags in the HTML. 
+    TRENDS & ANALYSIS:
+    {analyst_insights}"""
+    response = llm.invoke(prompt)
+    return {"messages": [response]}
 
-workflow.compile()
+workflow = StateGraph(AgentState)
+workflow.add_node("Researcher", researcher_node)
+workflow.add_node("Analyst", analyst_node)
+workflow.add_node("Writer",writer_node)
+workflow.set_entry_point("Researcher")
+workflow.add_edge("Researcher", "Analyst")
+workflow.add_edge("Analyst", "Writer")
+workflow.add_edge("Writer", END)
+
+app = workflow.compile()
+
+if __name__ == "main":
+    user_topic = "latest AI trends and internal productivity reports"
+    inputs = {"messages": [HumanMessage(content=user_topic)], "researcher_data": []}
+    for output in app.stream(inputs):
+        pass
+        print(output['writer']['messages'][-1].content)
