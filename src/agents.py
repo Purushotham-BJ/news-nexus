@@ -74,4 +74,5 @@ if __name__ == "main":
     inputs = {"messages": [HumanMessage(content=user_topic)], "researcher_data": []}
     for output in app.stream(inputs):
         pass
+        print("\n\n=== Final Newsletter (HTML) ===\n\n")
         print(output['writer']['messages'][-1].content)
