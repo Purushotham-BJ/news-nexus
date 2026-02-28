@@ -6,21 +6,19 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 DB_PATH=r"D:\Python-Project\news-nexus\data\chroma_db"
 def retrieve_documents(query, k=4, keywords_filter=True):
     embedding_model = OllamaEmbeddings(model="nomic-embed-text")
-    vector_store = Chroma(persist_directory=DB_PATH, embedding_function=embedding_model)
-    results = vector_store.similarity_search(query, k=k+2)
+    vector_store = Chroma(
+        persist_directory=DB_PATH,
+        embedding_function=embedding_model
+    )
+
+    results = vector_store.similarity_search_with_score(query, k=k+2)
+
     final_results = []
-    if keywords_filter:
-        query_terms = set(query.lower().split())
-        for doc, score in results:
-            content = doc.page_content.lower()
-            term_matches = sum(1 for term in query_terms if term in content)
-            boosted_score = score-(term_matches * 0.05)
-            final_results.append((doc, boosted_score))
-        final_results.sort(key=lambda x: x[1])
-        final_results = final_results[:k]
-    else:
-        final_results = results[:k]
-    return final_results
+
+    for doc, score in results:
+        final_results.append((doc, score))
+
+    return final_results[:k]
 
 if __name__ == "__main__":
     test_query = "What is the impact of GenAI on productivity?"
